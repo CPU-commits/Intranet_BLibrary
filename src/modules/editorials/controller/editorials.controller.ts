@@ -25,7 +25,7 @@ import { EditorialDTO, UpdateEditorialDTO } from '../dtos/editorial.dto'
 import { EditorialsService } from '../service/editorials.service'
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('api/editorials')
+@Controller('api/l/editorials')
 export class EditorialsController {
     constructor(private readonly editorialsService: EditorialsService) {}
 

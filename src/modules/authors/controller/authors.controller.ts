@@ -25,7 +25,7 @@ import { AuthorDTO, UpdateAuthorDTO } from '../dtos/author.dto'
 import { AuthorsService } from '../service/authors.service'
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('api/authors')
+@Controller('api/l/authors')
 export class AuthorsController {
     constructor(private readonly authorService: AuthorsService) {}
 

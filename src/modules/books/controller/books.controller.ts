@@ -28,7 +28,7 @@ import { RankBookDTO } from '../dtos/rank.dto'
 import { BooksService } from '../service/books.service'
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('api/books')
+@Controller('api/l/books')
 export class BooksController {
     constructor(private readonly booksService: BooksService) {}
 

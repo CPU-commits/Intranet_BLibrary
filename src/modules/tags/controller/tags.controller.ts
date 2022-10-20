@@ -20,7 +20,7 @@ import { TagDTO } from '../dtos/tag.dto'
 import { TagsService } from '../service/tags.service'
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('api/tags')
+@Controller('api/l/tags')
 export class TagsController {
     constructor(private readonly tagsService: TagsService) {}
 
