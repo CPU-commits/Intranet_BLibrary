@@ -10,6 +10,8 @@ import * as Joi from 'joi'
 
 import config from './config'
 import { AwsModule } from './modules/aws/aws.module'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { APP_GUARD } from '@nestjs/core'
 
 @Module({
     imports: [
@@ -37,10 +39,21 @@ import { AwsModule } from './modules/aws/aws.module'
                 AWS_ACCESS_KEY_ID: Joi.string().required(),
                 AWS_SECRET_ACCESS_KEY: Joi.string().required(),
                 ELASTICSEARCH_NODE: Joi.string().required(),
+                CLIENT_URL: Joi.string().required(),
             }),
         }),
         EditorialsModule,
         AwsModule,
+        ThrottlerModule.forRoot({
+            ttl: 1,
+            limit: 7,
+        }),
+    ],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
     ],
 })
 export class AppModule {}

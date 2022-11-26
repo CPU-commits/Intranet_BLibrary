@@ -1,8 +1,15 @@
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
+import helmet from 'helmet'
 import { AppModule } from './app.module'
 import config from './config'
+import * as csurf from 'csurf'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ResApi } from './models/res.model'
+import { FileDB } from './models/file.model'
+import { Tag } from './modules/tags/entities/tag.entity'
+import { Editorial } from './modules/editorials/entities/editorial.entity'
 
 async function bootstrap() {
     // Config
@@ -27,9 +34,48 @@ async function bootstrap() {
         }),
     )
     app.enableCors({
-        origin: '*',
+        origin: configService.client_url,
         methods: ['GET', 'PUT', 'POST', 'DELETE'],
+        credentials: true,
     })
+    // Helmet
+    app.use(
+        helmet({
+            contentSecurityPolicy: false,
+        }),
+    )
+    // Swagger
+    const configDocs = new DocumentBuilder()
+        .setTitle('Library API')
+        .setVersion('1.0')
+        .setDescription('API Server For library service')
+        .setTermsOfService('http://swagger.io/terms/')
+        .setContact(
+            'API Support',
+            'http://www.swagger.io/support',
+            'support@swagger.io',
+        )
+        .setLicense(
+            'Apache 2.0',
+            'http://www.apache.org/licenses/LICENSE-2.0.html',
+        )
+        .setBasePath('/api/l')
+        .addServer('http://localhost:3000')
+        .addTag('Library', 'Library Service')
+        .addTag('Authors')
+        .addTag('Books')
+        .addTag('Tags')
+        .addTag('Editorials')
+        .addTag('roles.directive')
+        .addBearerAuth()
+        .build()
+    const docuement = SwaggerModule.createDocument(app, configDocs, {
+        extraModels: [ResApi, FileDB, Tag, Editorial],
+    })
+    SwaggerModule.setup('/api/l/docs', app, docuement)
+
+    // Csurf
+    app.use(csurf())
     await app.listen(3000)
 }
 bootstrap()

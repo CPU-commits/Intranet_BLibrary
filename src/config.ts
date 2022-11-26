@@ -24,5 +24,6 @@ export default registerAs('config', () => {
         },
         nats: process.env.NATS_HOST,
         els_node: process.env.ELASTICSEARCH_NODE,
+        client_url: process.env.CLIENT_URL,
     }
 })
