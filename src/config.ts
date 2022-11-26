@@ -8,7 +8,6 @@ enum NodeEnv {
 export default registerAs('config', () => {
     const nodeEnv = process.env.NODE_ENV as keyof typeof NodeEnv
     return {
-        port: parseInt(process.env.PORT, 10),
         mongo: {
             dbName: process.env.MONGO_DB,
             host: process.env.MONGO_HOST,
