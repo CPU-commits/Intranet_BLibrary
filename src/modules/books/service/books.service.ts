@@ -187,6 +187,7 @@ export class BooksService {
                 },
             })
             .exec()
+        if (!book) throw new NotFoundException('No existe el libro')
         const personalRanking = await this.rankBookModel
             .findOne({
                 user: idUser,

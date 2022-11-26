@@ -13,22 +13,63 @@ import {
     UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
+import {
+    ApiBadRequestResponse,
+    ApiBody,
+    ApiConsumes,
+    ApiExtraModels,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiServiceUnavailableResponse,
+    ApiTags,
+    getSchemaPath,
+} from '@nestjs/swagger'
 import { Response } from 'express'
 import { Roles } from 'src/auth/decorators/roles.decorator'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { RolesGuard } from 'src/auth/guards/roles.guard'
 import { Role } from 'src/auth/models/roles.model'
 import { MongoIdPipe } from 'src/common/mongo-id.pipe'
+import { ResApi } from 'src/models/res.model'
 import handleError from 'src/res/handleError'
 import handleRes from 'src/res/handleRes'
 import { EditorialDTO, UpdateEditorialDTO } from '../dtos/editorial.dto'
+import { Editorial } from '../entities/editorial.entity'
+import { EditorialRes } from '../res/editorial.res'
+import { EditorialsRes } from '../res/editorials.res'
+import { UplaodEditorialRes } from '../res/upload.res'
 import { EditorialsService } from '../service/editorials.service'
 
+@ApiTags('Editorials', 'Library')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('api/l/editorials')
 export class EditorialsController {
     constructor(private readonly editorialsService: EditorialsService) {}
 
+    @ApiExtraModels(Editorial)
+    @ApiOperation({
+        description: 'Get tags',
+        summary: 'Get tags',
+    })
+    @ApiTags('roles.all')
+    @ApiOkResponse({
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ResApi) },
+                {
+                    properties: {
+                        body: {
+                            $ref: getSchemaPath(EditorialsRes),
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    @ApiServiceUnavailableResponse({
+        description: 'MongoDB || Nats service unavailable',
+    })
     @Get('/get_editorials')
     async getEditorials(@Res() res: Response) {
         try {
@@ -41,6 +82,37 @@ export class EditorialsController {
         }
     }
 
+    @ApiExtraModels(EditorialRes)
+    @ApiOperation({
+        description: 'Upload Editorial',
+        summary: 'Upload Editorial',
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        type: EditorialDTO,
+        description: 'EditorialDTO Model',
+    })
+    @ApiTags('roles.directive', 'roles.director', 'roles.librarian')
+    @ApiOkResponse({
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ResApi) },
+                {
+                    properties: {
+                        body: {
+                            $ref: getSchemaPath(EditorialRes),
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    @ApiServiceUnavailableResponse({
+        description: 'MongoDB || Nats service unavailable',
+    })
+    @ApiBadRequestResponse({
+        description: 'El archivo debe ser una imagen',
+    })
     @Roles(Role.DIRECTIVE, Role.DIRECTOR, Role.LIBRARIAN)
     @Post('/upload_editorial')
     @UseInterceptors(FileInterceptor('image'))
@@ -67,12 +139,43 @@ export class EditorialsController {
         }
     }
 
+    @ApiExtraModels(UplaodEditorialRes)
+    @ApiOperation({
+        description: 'Update Editorial',
+        summary: 'Update Editorial',
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        type: UpdateEditorialDTO,
+        description: 'UpdateEditorialDTO Model',
+    })
+    @ApiTags('roles.directive', 'roles.director', 'roles.librarian')
+    @ApiOkResponse({
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ResApi) },
+                {
+                    properties: {
+                        body: {
+                            $ref: getSchemaPath(UplaodEditorialRes),
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    @ApiServiceUnavailableResponse({
+        description: 'MongoDB || Nats service unavailable',
+    })
+    @ApiBadRequestResponse({
+        description: 'El archivo debe ser una imagen',
+    })
     @Roles(Role.DIRECTIVE, Role.DIRECTOR, Role.LIBRARIAN)
-    @Put('/update_editorial/:id')
+    @Put('/update_editorial/:idEditorial')
     @UseInterceptors(FileInterceptor('image'))
     async updateEditorial(
         @Res() res: Response,
-        @Param('id', MongoIdPipe) idEditorial: string,
+        @Param('idEditorial', MongoIdPipe) idEditorial: string,
         @Body() editorial?: UpdateEditorialDTO,
         @UploadedFile() image?: Express.Multer.File,
     ) {
@@ -90,11 +193,27 @@ export class EditorialsController {
         }
     }
 
+    @ApiOperation({
+        description: 'Delete Editorial',
+        summary: 'Delete Editorial',
+    })
+    @ApiTags('roles.directive', 'roles.director', 'roles.librarian')
+    @ApiOkResponse({
+        schema: {
+            $ref: getSchemaPath(ResApi),
+        },
+    })
+    @ApiServiceUnavailableResponse({
+        description: 'MongoDB || Nats service unavailable',
+    })
+    @ApiNotFoundResponse({
+        description: 'No existe la editorial',
+    })
     @Roles(Role.DIRECTIVE, Role.DIRECTOR, Role.LIBRARIAN)
-    @Delete('/delete_editorial/:id')
+    @Delete('/delete_editorial/:idEditorial')
     async deleteEditorial(
         @Res() res: Response,
-        @Param('id', MongoIdPipe) idEditorial: string,
+        @Param('idEditorial', MongoIdPipe) idEditorial: string,
     ) {
         try {
             await this.editorialsService.deleteEditorial(idEditorial)

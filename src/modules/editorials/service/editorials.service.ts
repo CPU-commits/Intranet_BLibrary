@@ -96,7 +96,7 @@ export class EditorialsService {
             .exec()
         if (image) {
             this.natsClient.emit('delete_files', [editorialData.image])
-            const imageUrl = await lastValueFrom(
+            const imageUrl: Array<string> = await lastValueFrom(
                 this.natsClient.send('get_aws_token_access', [fileDB.key]),
             )
             return imageUrl[0]
