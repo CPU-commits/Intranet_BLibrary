@@ -22,7 +22,6 @@ export default registerAs('config', () => {
             bucket: process.env.AWS_BUCKET,
         },
         nats: process.env.NATS_HOST,
-        els_node: process.env.ELASTICSEARCH_NODE,
         client_url: process.env.CLIENT_URL,
     }
 })

@@ -37,7 +37,6 @@ import { APP_GUARD } from '@nestjs/core'
                 AWS_BUCKET: Joi.string().required(),
                 AWS_ACCESS_KEY_ID: Joi.string().required(),
                 AWS_SECRET_ACCESS_KEY: Joi.string().required(),
-                ELASTICSEARCH_NODE: Joi.string().required(),
                 CLIENT_URL: Joi.string().required(),
             }),
         }),
