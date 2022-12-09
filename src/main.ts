@@ -4,7 +4,7 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices'
 import helmet from 'helmet'
 import { AppModule } from './app.module'
 import config from './config'
-import * as csurf from 'csurf'
+// import * as csurf from 'csurf'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ResApi } from './models/res.model'
 import { FileDB } from './models/file.model'
@@ -33,8 +33,10 @@ async function bootstrap() {
             },
         }),
     )
+    const httpClient = `http://${configService.client_url}`
+    const httpsClient = `https://${configService.client_url}`
     app.enableCors({
-        origin: configService.client_url,
+        origin: [httpClient, httpsClient],
         methods: ['GET', 'PUT', 'POST', 'DELETE'],
         credentials: true,
     })
@@ -75,7 +77,7 @@ async function bootstrap() {
     SwaggerModule.setup('/api/l/docs', app, docuement)
 
     // Csurf
-    app.use(csurf())
+    // app.use(csurf())
     await app.listen(3000)
 }
 bootstrap()
