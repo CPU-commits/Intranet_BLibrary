@@ -12,6 +12,7 @@ import config from './config'
 import { AwsModule } from './modules/aws/aws.module'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { APP_GUARD } from '@nestjs/core'
+import { MainController } from './main/main.controller';
 
 @Module({
     imports: [
@@ -53,5 +54,6 @@ import { APP_GUARD } from '@nestjs/core'
             useClass: ThrottlerGuard,
         },
     ],
+    controllers: [MainController],
 })
 export class AppModule {}

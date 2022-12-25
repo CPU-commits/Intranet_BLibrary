@@ -21,6 +21,7 @@ async function bootstrap() {
         transport: Transport.NATS,
         options: {
             servers: [`nats://${configService.nats}:4222`],
+            queue: 'main',
         },
     })
     await app.startAllMicroservices()
