@@ -10,12 +10,15 @@ import { ResApi } from './models/res.model'
 import { FileDB } from './models/file.model'
 import { Tag } from './modules/tags/entities/tag.entity'
 import { Editorial } from './modules/editorials/entities/editorial.entity'
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
 
 async function bootstrap() {
     // Config
     const configService = config()
     // App
     const app = await NestFactory.create(AppModule)
+    // Logger
+    app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER))
     // NATS Microservice
     app.connectMicroservice<MicroserviceOptions>({
         transport: Transport.NATS,

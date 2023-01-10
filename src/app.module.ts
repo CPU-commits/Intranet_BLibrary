@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { AuthModule } from './auth/auth.module'
 import { DatabaseModule } from './database/database.module'
 import { TagsModule } from './modules/tags/tags.module'
 import { AuthorsModule } from './modules/authors/authors.module'
 import { BooksModule } from './modules/books/books.module'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigType } from '@nestjs/config'
 import { EditorialsModule } from './modules/editorials/editorials.module'
 import * as Joi from 'joi'
 
@@ -12,7 +12,10 @@ import config from './config'
 import { AwsModule } from './modules/aws/aws.module'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { APP_GUARD } from '@nestjs/core'
-import { MainController } from './main/main.controller';
+import { MainController } from './main/main.controller'
+import { WinstonModule } from 'nest-winston'
+import * as winston from 'winston'
+import { CorrelationIdMiddleware } from './correlation-id.middleware'
 
 @Module({
     imports: [
@@ -47,6 +50,39 @@ import { MainController } from './main/main.controller';
             ttl: 1,
             limit: 7,
         }),
+        WinstonModule.forRootAsync({
+            useFactory: (configService: ConfigType<typeof config>) => {
+                const { timestamp, json, combine, simple } = winston.format
+                const transports: Array<winston.transport> = [
+                    new winston.transports.File({
+                        filename: 'error.log',
+                        level: 'error',
+                        dirname: `${process.cwd()}/logs`,
+                        maxsize: 10000000,
+                        maxFiles: 2,
+                    }),
+                    new winston.transports.File({
+                        filename: 'combined.log',
+                        dirname: `${process.cwd()}/logs`,
+                        maxsize: 10000000,
+                        maxFiles: 3,
+                        level: 'info',
+                        format: combine(json(), timestamp()),
+                    }),
+                ]
+                if (configService.node_env !== 'prod')
+                    transports.push(
+                        new winston.transports.Console({
+                            format: combine(simple(), timestamp()),
+                        }),
+                    )
+                return {
+                    transports,
+                    format: combine(timestamp(), json()),
+                }
+            },
+            inject: [config.KEY],
+        }),
     ],
     providers: [
         {
@@ -56,4 +92,8 @@ import { MainController } from './main/main.controller';
     ],
     controllers: [MainController],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(CorrelationIdMiddleware).forRoutes('*')
+    }
+}
