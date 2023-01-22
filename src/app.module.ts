@@ -16,6 +16,8 @@ import { MainController } from './main/main.controller'
 import { WinstonModule } from 'nest-winston'
 import * as winston from 'winston'
 import { CorrelationIdMiddleware } from './correlation-id.middleware'
+import { MulterModule } from '@nestjs/platform-express'
+import { MAX_FILES, MAX_FILE_SIZE } from './common/max_size_file'
 
 @Module({
     imports: [
@@ -49,6 +51,12 @@ import { CorrelationIdMiddleware } from './correlation-id.middleware'
         ThrottlerModule.forRoot({
             ttl: 1,
             limit: 7,
+        }),
+        MulterModule.register({
+            limits: {
+                fileSize: MAX_FILE_SIZE,
+                files: MAX_FILES,
+            },
         }),
         WinstonModule.forRootAsync({
             useFactory: (configService: ConfigType<typeof config>) => {
