@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ClientProxy } from '@nestjs/microservices'
 import { InjectModel } from '@nestjs/mongoose'
-import { ObjectID } from 'bson'
+import { ObjectId } from 'bson'
 import { Model } from 'mongoose'
 import { lastValueFrom } from 'rxjs'
 import * as slug from 'slug'
@@ -62,13 +62,13 @@ export class AuthorsService {
             table_info: author.table_info.map((item) => {
                 return {
                     ...item,
-                    _id: new ObjectID(),
+                    _id: new ObjectId(),
                 }
             }),
             fun_facts: author.fun_facts.map((fact) => {
                 return {
                     ...fact,
-                    _id: new ObjectID(),
+                    _id: new ObjectId(),
                 }
             }),
             date_upload: now,
@@ -98,13 +98,13 @@ export class AuthorsService {
                         table_info: author?.table_info?.map((item) => {
                             return {
                                 ...item,
-                                _id: new ObjectID(),
+                                _id: new ObjectId(),
                             }
                         }),
                         fun_facts: author?.fun_facts?.map((fact) => {
                             return {
                                 ...fact,
-                                _id: new ObjectID(),
+                                _id: new ObjectId(),
                             }
                         }),
                         image: fileDB ? fileDB._id.$oid : undefined,
