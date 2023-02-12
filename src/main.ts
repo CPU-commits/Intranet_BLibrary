@@ -11,6 +11,7 @@ import { FileDB } from './models/file.model'
 import { Tag } from './modules/tags/entities/tag.entity'
 import { Editorial } from './modules/editorials/entities/editorial.entity'
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
+import { getNatsServers } from './utils/get_nats_servers'
 
 async function bootstrap() {
     // Config
@@ -23,8 +24,8 @@ async function bootstrap() {
     app.connectMicroservice<MicroserviceOptions>({
         transport: Transport.NATS,
         options: {
-            servers: [`nats://${configService.nats}:4222`],
-            queue: 'main',
+            servers: getNatsServers(),
+            queue: 'library',
         },
     })
     await app.startAllMicroservices()
